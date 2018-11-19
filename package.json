@@ -1,0 +1,70 @@
+{
+  "name": "unicorn-vue-uploader",
+  "description": "Simple File Uploading for Vue",
+  "version": "1.0.0",
+  "author": "Darryn Ten, Steve Ops",
+  "private": false,
+  "license": "MIT",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text mocha-webpack --webpack-config webpack.config.js --require test/setup.js test/**/*.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnicornGlobal/vue-uploader"
+  },
+  "files": [
+    "index.js",
+    "index.js.map"
+  ],
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "@vue/test-utils": "^1.0.0-beta.25",
+    "ajv": "^6.5.5",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-istanbul": "^5.1.0",
+    "chai": "^4.2.0",
+    "codecov": "^3.1.0",
+    "cross-env": "^5.2.0",
+    "css-loader": "^1.0.0",
+    "eslint": "^5.9.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "istanbul-instrumenter-loader": "^3.0.1",
+    "jsdom": "^13.0.0",
+    "jsdom-global": "^3.0.2",
+    "mocha": "^5.2.0",
+    "mocha-webpack": "^2.0.0-beta.0",
+    "node-sass": "^4.9.3",
+    "nyc": "^13.1.0",
+    "sass-loader": "^7.1.0",
+    "sinon": "^7.1.1",
+    "sinon-chai": "^3.2.0",
+    "style-loader": "^0.23.0",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "vee-validate": "^2.0.9",
+    "vue": "2.5.17",
+    "vue-axios": "^2.1.4",
+    "vue-loader": "^15.4.2",
+    "vue-svg-loader": "^0.10.0",
+    "vue-template-compiler": "2.5.17",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-node-externals": "^1.7.2",
+    "webpack-merge": "^4.1.4"
+  },
+  "nyc": {
+    "include": [
+      "src/*.vue"
+    ],
+    "instrument": false,
+    "check-coverage": true,
+    "per-file": true,
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
+    "sourceMap": false
+  }
+}
