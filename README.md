@@ -100,3 +100,25 @@ assets.
   handleFailure: () => { throw 'Failed' }
 }
 ```
+
+### Additional Vee Valiate Validations
+
+There are 2 custom Vee Validate directives included in this package.
+
+You can enable them in your host application like this:
+
+```
+// main.js
+import minimumWidth from '@/validation/minwidth.js'
+import minimumHeight from '@/validation/minheight.js'
+
+VeeValidate.Validator.extend('min_width', {
+  validate: minimumWidth,
+  getMessage: field => 'Image width must be 500px minimum'
+})
+
+VeeValidate.Validator.extend('min_height', {
+  validate: minimumHeight,
+  getMessage: field => 'Image height must be 20px minimum'
+})
+```
