@@ -101,13 +101,13 @@ assets.
 }
 ```
 
-### Additional Vee Valiate Validations
+### Additional Vee Validate Validations
 
 There are 2 custom Vee Validate directives included in this package.
 
 You can enable them in your host application like this:
 
-```
+```js
 // main.js
 import minimumWidth from '@/validation/minwidth.js'
 import minimumHeight from '@/validation/minheight.js'
