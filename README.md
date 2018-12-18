@@ -1,4 +1,4 @@
-# vue-uploader
+# @unicorns/uploader
 
 #### Simple File Uploader
 
@@ -7,7 +7,7 @@ Basic file uploader
 ## Install
 
 ```
-npm install vue-uploader --save
+npm install @unicorns/uploader --save
 ```
 
 ## Test and Build
@@ -20,7 +20,7 @@ npm run build
 ## Usage
 
 ```
-import FileUploader from 'vue-uploader'
+import FileUploader from '@unicorns/uploader'
 ```
 
 Include it in the component you'd like to use it in.
