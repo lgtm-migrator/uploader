@@ -18,11 +18,11 @@
     "index.js.map"
   ],
   "devDependencies": {
-    "axios": "^0.18.0",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.0",
     "@vue/test-utils": "^1.0.0-beta.27",
     "ajv": "^6.6.2",
+    "axios": "^0.18.1",
     "babel-loader": "^8.0.4",
     "babel-plugin-istanbul": "^5.1.0",
     "chai": "^4.2.0",
@@ -36,8 +36,8 @@
     "jsdom-global": "^3.0.2",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "node-sass": "^4.11.0",
-    "nyc": "^13.1.0",
+    "node-sass": "^4.12.0",
+    "nyc": "^14.1.1",
     "sass-loader": "^7.1.0",
     "sinon": "^7.2.2",
     "sinon-chai": "^3.3.0",
@@ -51,8 +51,8 @@
     "vue-template-compiler": "2.5.21",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2",
-    "webpack-node-externals": "^1.7.2",
-    "webpack-merge": "^4.1.5"
+    "webpack-merge": "^4.1.5",
+    "webpack-node-externals": "^1.7.2"
   },
   "nyc": {
     "include": [
