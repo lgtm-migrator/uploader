@@ -41,7 +41,7 @@
     "sass-loader": "^7.1.0",
     "sinon": "^7.2.2",
     "sinon-chai": "^3.3.0",
-    "style-loader": "^0.23.1",
+    "style-loader": "^1.0.0",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "vee-validate": "^2.1.4",
     "vue": "2.6.10",
