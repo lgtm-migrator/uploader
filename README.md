@@ -122,3 +122,13 @@ VeeValidate.Validator.extend('min_height', {
   getMessage: field => 'Image height must be 20px minimum'
 })
 ```
+
+# Version History
+
+v1.x is now deprecated and no longer supported.
+
+v2.x is the latest version and is not backwards compatible with
+applications currently using v1.x.
+
+Ensure you test your application sufficiently before updating the version
+from 1.x to 2.x
