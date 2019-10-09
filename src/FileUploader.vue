@@ -5,24 +5,26 @@
       <span v-if="errors.has('file')" class="validation-error">
         {{errors.first('file')}}
       </span>
-      <div ref="preview" class="preview" :style="previewStyle">
+      <div ref="preview" class="preview" :style="previewStyle" @click.prevent="pickFile()">
         <template v-if="!previewImage">
-          <div
-            v-if="!(previewName || placeholderName)" 
-            class="placeholder"
-            :style="placeholderStyle">
-          </div>
-          <div
-            v-if="!previewName"
-            class="preview-name placeholder-name">
-            {{placeholderName}}
-          </div>
-          <div
-            v-if="previewName"
-            ref="preview-name"
-            class="preview-name">
-            {{previewName}}
-          </div>
+          <slot for="preview-component">
+            <div
+              v-if="!(previewName || placeholderName)" 
+              class="placeholder"
+              :style="placeholderStyle">
+            </div>
+            <div
+              v-if="!previewName"
+              class="preview-name placeholder-name">
+              {{placeholderName}}
+            </div>
+            <div
+              v-if="previewName"
+              ref="preview-name"
+              class="preview-name">
+              {{previewName}}
+            </div>
+          </slot>
         </template>
         <a @click.prevent="reset()"
           v-if="hasFile"
@@ -87,6 +89,10 @@
       placeholder: {
         required: false,
         default: false
+      },
+      previewRadius: {
+        required: false,
+        default: 0
       },
       preview: {
         required: false,
@@ -160,7 +166,7 @@
         return `width: ${this.styles.box.width}; height: ${this.styles.box.height}; margin: ${this.styles.box.margin};`
       },
       previewStyle() {
-        return `width: ${this.styles.preview.width}; height: ${this.styles.preview.height}; margin: ${this.styles.preview.margin}; background-image: ${this.preview};`
+        return `width: ${this.styles.preview.width}; height: ${this.styles.preview.height}; margin: ${this.styles.preview.margin}; background-image: ${this.preview}; border-radius: ${this.previewRadius}px`
       },
       buttonStyle() {
         return `background-color: ${this.styles.button.colour}; width: ${this.styles.button.width}; margin: ${this.styles.button.margin}; color: ${this.styles.button.text};`
@@ -259,6 +265,7 @@
         return this.$http.post(this.url, formData, {
           headers: {'Content-Type': 'multipart/form-data'},
           onUploadProgress: (event) => {
+            console.log(event,  '<<')
             this.$emit('progress', (event.total / event.loaded) * 100)
           }
         }).then((response) => {
