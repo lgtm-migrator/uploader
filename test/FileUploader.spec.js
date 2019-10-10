@@ -23,6 +23,7 @@ describe('FileUploader.vue', () => {
       'uploading',
       'files',
       'isValid',
+      'oldimage',
       'previewImage',
       'placeholderName'
     )

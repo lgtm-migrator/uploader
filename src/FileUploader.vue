@@ -282,7 +282,7 @@
         })
       },
       uploadFile() {
-        this.$validator.validateAll().then((valid) => {
+        return this.$validator.validateAll().then((valid) => {
           if (valid) {
             this.uploading = true
             return this.doUpload()
@@ -297,24 +297,21 @@
         formData.append(this.fieldName, file, file.name)
         formData.append('title', this.name)
         this.$emit('progress', 1)
-        let context = this
-        try {
-          this.$http.post(this.url, formData, {
-            headers: {'Content-Type': 'multipart/form-data'},
-            onUploadProgress: (event) => {
-              this.$emit('progress', (event.total / event.loaded) * 100)
-            }
-          }).then((response) => {
-            this.$emit('uploaded', response.data)
-            this.reset()
-            return response
-          }).catch((error) => {
-            this.previewImage = this.oldimage
-            this.$emit('failed', error)
-            this.reset()
-            return error
-          })
-        }
+        return this.$http.post(this.url, formData, {
+          headers: {'Content-Type': 'multipart/form-data'},
+          onUploadProgress: (event) => {
+            this.$emit('progress', (event.total / event.loaded) * 100)
+          }
+        }).then((response) => {
+          this.$emit('uploaded', response.data)
+          this.reset()
+          return response
+        }).catch((error) => {
+          this.previewImage = this.oldimage
+          this.$emit('failed', error)
+          this.reset()
+          return error
+        })
       }
     }
   }
