@@ -2,48 +2,48 @@
   <div class="container" :style="containerStyle">
     <div v-if="disabled" class="mask"></div>
     <div class="wrapper">
-      <span v-if="errors.has('file')" class="validation-error">
-        {{errors.first('file')}}
-      </span>
-      <div ref="preview" class="preview" :style="previewStyle">
+      <div ref="preview" class="preview" :style="previewStyle" @click.prevent="pickFile()">
         <template v-if="!previewImage">
-          <div
-            v-if="!(previewName || placeholderName)" 
-            class="placeholder"
-            :style="placeholderStyle">
-          </div>
-          <div
-            v-if="!previewName"
-            class="preview-name placeholder-name">
-            {{placeholderName}}
-          </div>
-          <div
-            v-if="previewName"
-            ref="preview-name"
-            class="preview-name">
-            {{previewName}}
-          </div>
+          <slot name="preview" @click.prevent="pickFile()">
+            <div
+              v-if="!(previewName || placeholderName)" 
+              class="placeholder"
+              :style="placeholderStyle">
+            </div>
+            <div
+              v-if="!previewName"
+              class="preview-name placeholder-name">
+              {{placeholderName}}
+            </div>
+            <div
+              v-if="previewName"
+              ref="preview-name"
+              class="preview-name">
+              {{previewName}}
+            </div>
+          </slot>
         </template>
+        <slot name="loading" v-if="uploading">
+          <loader
+            fill="pink">
+          </loader>
+        </slot>
         <a @click.prevent="reset()"
-          v-if="hasFile"
+          v-if="hasFile && !instantUpload"
           :style="resetStyle"
           class="reset-button">
         </a>
       </div>
       <button
-        v-if="isValid && url"
+        v-if="isValid && url && !instantUpload"
         @click.prevent="uploadFile()"
         class="picker"
         :style="buttonDisabledStyle"
         :disabled="uploading">
-        <loader
-          v-if="uploading"
-          fill="pink">
-        </loader>
         Save
       </button>
       <button
-        v-else
+        v-else-if="!buttonless"
         @click.prevent="pickFile()"
         class="picker"
         :style="buttonStyle">
@@ -51,6 +51,9 @@
       </button>
       <input @change="onChange" ref="input" type="file" name="file" v-validate="rules">
     </div>
+    <span v-if="errors.has('file')" class="validation-error">
+      {{errors.first('file')}}
+    </span>
   </div>
 </template>
 
@@ -71,6 +74,16 @@
           return {}
         }
       },
+      instantUpload: {
+        type: Boolean,
+        required: false,
+        default: false
+      },
+      buttonless: {
+        type: Boolean,
+        required: false,
+        default: false
+      },
       name: {
         type: String,
         required: true
@@ -78,6 +91,11 @@
       url: {
         type: String,
         required: false
+      },
+      fieldName: {
+        type: String,
+        required: false,
+        default: 'document'
       },
       disabled: {
         type: Boolean,
@@ -87,6 +105,10 @@
       placeholder: {
         required: false,
         default: false
+      },
+      previewRadius: {
+        required: false,
+        default: 0
       },
       preview: {
         required: false,
@@ -112,7 +134,8 @@
             preview: {
               width: '210px',
               height: '200px',
-              margin: '1em'
+              margin: '1em',
+              border: '0'
             },
             button: {
               colour: 'green',
@@ -131,7 +154,8 @@
         files: null,
         isValid: false,
         previewImage: '',
-        placeholderName: ''
+        placeholderName: '',
+        oldimage: null
       }
     },
     created() {
@@ -160,7 +184,7 @@
         return `width: ${this.styles.box.width}; height: ${this.styles.box.height}; margin: ${this.styles.box.margin};`
       },
       previewStyle() {
-        return `width: ${this.styles.preview.width}; height: ${this.styles.preview.height}; margin: ${this.styles.preview.margin}; background-image: ${this.preview};`
+        return `width: ${this.styles.preview.width}; height: ${this.styles.preview.height}; margin: ${this.styles.preview.margin}; background-image: ${this.preview}; border-radius: ${this.previewRadius}px; border: ${this.preview ? this.styles.preview.border : ""}`
       },
       buttonStyle() {
         return `background-color: ${this.styles.button.colour}; width: ${this.styles.button.width}; margin: ${this.styles.button.margin}; color: ${this.styles.button.text};`
@@ -220,40 +244,57 @@
       },
       onChange(event) {
         return this.$validator.validateAll().then((valid) => {
+          if (!valid) {
+            this.uploading = false
+          }
           this.isValid = valid
           this.files = Array.from(event.target.files)
         })
       },
       readFile() {
-        this.previewImage = ''
         if (!this.hasFile || !this.files[0].type.startsWith('image')) {
           return
         }
 
+        this.uploading = true
+        this.oldimage = this.previewImage
+        this.previewImage = ''
         let reader = new window.FileReader()
         reader.addEventListener('load', () => {
           this.previewImage = reader.result
+
+          if (this.instantUpload) {
+            this.uploadFile()
+          } else {
+            this.uploading = false
+          }
         })
         reader.readAsDataURL(this.files[0])
       },
       reset() {
+        this.previewImage = ''
         this.$refs['input'].value = null
         this.files = null
         this.isValid = false
         this.errors.clear()
+        this.$nextTick(() => {
+          this.uploading = false
+        })
       },
       uploadFile() {
         return this.$validator.validateAll().then((valid) => {
           if (valid) {
+            this.uploading = true
             return this.doUpload()
+          } else {
+            this.uploading = false
           }
         })
       },
       doUpload() {
-        this.uploading = true
         let formData = new FormData()
         let file = this.files[0]
-        formData.append('document', file, file.name)
+        formData.append(this.fieldName, file, file.name)
         formData.append('title', this.name)
         this.$emit('progress', 1)
         return this.$http.post(this.url, formData, {
@@ -263,13 +304,13 @@
           }
         }).then((response) => {
           this.$emit('uploaded', response.data)
+          this.reset()
           return response
         }).catch((error) => {
+          this.previewImage = this.oldimage
           this.$emit('failed', error)
-          return error
-        }).finally(() => {
-          this.uploading = false
           this.reset()
+          return error
         })
       }
     }
@@ -294,7 +335,6 @@
   .wrapper {
     display: flex;
     flex-direction: column;
-    background-color: rgba(216, 217, 218, 0.28);
   }
 
   .preview {
