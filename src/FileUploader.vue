@@ -7,7 +7,7 @@
       </span>
       <div ref="preview" class="preview" :style="previewStyle" @click.prevent="pickFile()">
         <template v-if="!previewImage">
-          <slot for="preview-component">
+          <slot name="preview" @click.prevent="pickFile()">
             <div
               v-if="!(previewName || placeholderName)" 
               class="placeholder"
@@ -26,6 +26,11 @@
             </div>
           </slot>
         </template>
+        <slot name="loading" v-if="uploading">
+          <loader
+            fill="pink">
+          </loader>
+        </slot>
         <a @click.prevent="reset()"
           v-if="hasFile"
           :style="resetStyle"
@@ -33,15 +38,11 @@
         </a>
       </div>
       <button
-        v-if="isValid && url"
+        v-if="isValid && url && !instantUpload"
         @click.prevent="uploadFile()"
         class="picker"
         :style="buttonDisabledStyle"
         :disabled="uploading">
-        <loader
-          v-if="uploading"
-          fill="pink">
-        </loader>
         Save
       </button>
       <button
@@ -73,6 +74,11 @@
           return {}
         }
       },
+      instantUpload: {
+        type: Boolean,
+        required: false,
+        default: false
+      },
       name: {
         type: String,
         required: true
@@ -80,6 +86,11 @@
       url: {
         type: String,
         required: false
+      },
+      fieldName: {
+        type: String,
+        required: false,
+        default: 'document'
       },
       disabled: {
         type: Boolean,
@@ -118,7 +129,8 @@
             preview: {
               width: '210px',
               height: '200px',
-              margin: '1em'
+              margin: '1em',
+              border: '0'
             },
             button: {
               colour: 'green',
@@ -166,7 +178,7 @@
         return `width: ${this.styles.box.width}; height: ${this.styles.box.height}; margin: ${this.styles.box.margin};`
       },
       previewStyle() {
-        return `width: ${this.styles.preview.width}; height: ${this.styles.preview.height}; margin: ${this.styles.preview.margin}; background-image: ${this.preview}; border-radius: ${this.previewRadius}px`
+        return `width: ${this.styles.preview.width}; height: ${this.styles.preview.height}; margin: ${this.styles.preview.margin}; background-image: ${this.preview}; border-radius: ${this.previewRadius}px; border: ${this.preview ? this.styles.preview.border : ""}`
       },
       buttonStyle() {
         return `background-color: ${this.styles.button.colour}; width: ${this.styles.button.width}; margin: ${this.styles.button.margin}; color: ${this.styles.button.text};`
@@ -231,6 +243,7 @@
         })
       },
       readFile() {
+        this.uploading = true
         this.previewImage = ''
         if (!this.hasFile || !this.files[0].type.startsWith('image')) {
           return
@@ -239,45 +252,59 @@
         let reader = new window.FileReader()
         reader.addEventListener('load', () => {
           this.previewImage = reader.result
+
+          if (this.instantUpload) {
+            this.uploadFile()
+          } else {
+            this.uploading = false
+          }
         })
         reader.readAsDataURL(this.files[0])
       },
       reset() {
+        console.log('resetting')
         this.$refs['input'].value = null
         this.files = null
         this.isValid = false
         this.errors.clear()
+        this.$nextTick(() => {
+          this.uploading = false
+        })
       },
       uploadFile() {
-        return this.$validator.validateAll().then((valid) => {
+        this.$validator.validateAll().then((valid) => {
           if (valid) {
+            this.uploading = true
             return this.doUpload()
           }
         })
       },
       doUpload() {
-        this.uploading = true
         let formData = new FormData()
         let file = this.files[0]
-        formData.append('document', file, file.name)
+        formData.append(this.fieldName, file, file.name)
         formData.append('title', this.name)
         this.$emit('progress', 1)
-        return this.$http.post(this.url, formData, {
-          headers: {'Content-Type': 'multipart/form-data'},
-          onUploadProgress: (event) => {
-            console.log(event,  '<<')
-            this.$emit('progress', (event.total / event.loaded) * 100)
-          }
-        }).then((response) => {
-          this.$emit('uploaded', response.data)
-          return response
-        }).catch((error) => {
-          this.$emit('failed', error)
-          return error
-        }).finally(() => {
-          this.uploading = false
-          this.reset()
-        })
+        let context = this
+        try {
+          this.$http.post(this.url, formData, {
+            headers: {'Content-Type': 'multipart/form-data'},
+            onUploadProgress: (event) => {
+              console.log(event,  '<<')
+              this.$emit('progress', (event.total / event.loaded) * 100)
+            }
+          }).then((response) => {
+            this.$emit('uploaded', response.data)
+            return response
+          }).catch((error) => {
+            this.$emit('failed', error)
+            return error
+          }).finally(() => {
+            this.reset()
+          })
+        } catch (error) {
+          console.log('ee', error)
+        }
       }
     }
   }
