@@ -88,7 +88,6 @@
         },
         props: {
             cropping: {
-                type: Object,
                 required: false,
                 default: false
             },
