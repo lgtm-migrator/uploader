@@ -12,7 +12,7 @@
                 />
                 <br>
                 <div style="text-align: right">
-                    <button @click.prevent="finishCropping">Save</button>
+                    <button :style="buttonStyle" @click.prevent="finishCropping">Save</button>
                 </div>
             </div>
         </modal>
@@ -214,7 +214,7 @@
                 return `width: ${this.styles.preview.width}; height: ${this.styles.preview.height}; margin: ${this.styles.preview.margin}; background-image: ${this.preview}; border-radius: ${this.previewRadius}px; border: ${this.preview ? this.styles.preview.border : ""}`
             },
             buttonStyle() {
-                return `background-color: ${this.styles.button.colour}; width: ${this.styles.button.width}; margin: ${this.styles.button.margin}; color: ${this.styles.button.text};`
+                return `background-color: ${this.styles.button.colour}; width: ${this.styles.button.width}; margin: ${this.styles.button.margin}; color: ${this.styles.button.text}; text-align: center;`
             },
             buttonDisabledStyle() {
                 return `background-color: ${this.styles.button.disabled}; width: ${this.styles.button.width}; margin: ${this.styles.button.margin}; color: ${this.styles.button.text};`
